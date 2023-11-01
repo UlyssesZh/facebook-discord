@@ -1,0 +1,4 @@
+aiohttp==3.9.0b0
+facebook-scraper==0.2.59
+browser-cookie3
+discord.py
