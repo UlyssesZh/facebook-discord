@@ -3,3 +3,4 @@ __pycache__/
 /config.py
 /posts_list.txt
 /cookies.pckl
+/cookies_timeout.date

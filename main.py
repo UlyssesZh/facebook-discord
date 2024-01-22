@@ -7,39 +7,33 @@ import discord
 import pickle
 import os
 import logging
-
-import config
 import time
 
-def use_persistent_session(email, password, cookies_file_path):
-	try:
-		if os.path.getmtime(cookies_file_path) + config.cookies_timeout < time.time():
-			cookies = None
-			logger.debug("Cookies file expired %s", cookies_file_path)
-		else:
-			with open(cookies_file_path, "rb") as f:
-				cookies = pickle.load(f)
-				logger.debug("Loaded cookies from %s", cookies_file_path)
-	except FileNotFoundError:
-		logger.error("No cookies file found at %s", cookies_file_path)
-		cookies = None
-	try:
-		if not cookies:
-			raise exceptions.InvalidCookies()
-		set_cookies(cookies)
-		logger.debug("Successfully logged in with cookies")
-	except exceptions.InvalidCookies:
-		logger.exception("Invalid cookies, trying to login with credentials")
-		_scraper.login(email, password)
-		cookies = _scraper.session.cookies
-		with open(cookies_file_path, "wb") as f:
-			pickle.dump(cookies, f)
-		set_cookies(cookies)
-		logger.debug("Successfully logged in with credentials")
+import config
 
+def set_cookies_timeout():
+	timeout = time.time() + config.cookies_timeout
+	logger.debug("Setting cookies timeout at %f", timeout)
+	with open(cookies_timeout_path, 'w') as f:
+		f.write(str(timeout))
+	if os.path.exists(config.cookies_file_path):
+		os.remove(config.cookies_file_path)
+def check_cookies_timeout():
+	if not os.path.exists(config.cookies_timeout_path):
+		set_cookies_timeout()
+	else:
+		with open(config.cookies_timeout_path) as f:
+			timeout = float(f.read())
+		if timeout < time.time():
+			logger.debug("Cookie expired. Needs refreshing.")
+			set_cookies_timeout()
+
+check_cookies_timeout()
 use_persistent_session(config.facebook_email, config.facebook_password, config.cookies_file_path)
-
 facebook_user = get_profile(config.scrape_name)
+
+logger.debug("Sleep for %f seconds", config.wait_time)
+time.sleep(config.wait_time)
 
 try:
 	with open(config.posts_list_path, "r") as f:
@@ -48,6 +42,7 @@ except FileNotFoundError:
 	recorded_posts = set()
 new_posts = []
 for post in get_posts(config.scrape_name, pages=3):
+	print(post)
 	if post['post_id'] in recorded_posts:
 		break
 	logging.info("New post found: " + post['post_url'])
