@@ -8,6 +8,7 @@ import pickle
 import os
 import logging
 import time
+import json
 
 import config
 
@@ -28,21 +29,30 @@ def check_cookies_timeout():
 			logger.debug("Cookie expired. Needs refreshing.")
 			set_cookies_timeout()
 
-check_cookies_timeout()
-use_persistent_session(config.facebook_email, config.facebook_password, config.cookies_file_path)
-facebook_user = get_profile(config.scrape_name)
-
 logger.debug("Sleep for %f seconds", config.wait_time)
 time.sleep(config.wait_time)
 
+#check_cookies_timeout()
+#use_persistent_session(config.facebook_email, config.facebook_password, config.cookies_file_path)
+
+try:
+	with open(config.mbasic_headers_path, 'r') as f:
+		_scraper.mbasic_headers = json.load(f)
+	options = {
+		'base_url': 'https://mbasic.facebook.com',
+		'start_url': f'https://mbasic.facebook.com/{config.scrape_name}?v=timeline'
+	}
+except FileNotFoundError:
+	options = {}
+
+facebook_user = get_profile(config.scrape_name, **options)
 try:
 	with open(config.posts_list_path, "r") as f:
 		recorded_posts = set(f.read().splitlines())
 except FileNotFoundError:
 	recorded_posts = set()
 new_posts = []
-for post in get_posts(config.scrape_name, pages=3):
-	print(post)
+for post in get_posts(config.scrape_name, pages=3, **options):
 	if post['post_id'] in recorded_posts:
 		break
 	logging.info("New post found: " + post['post_url'])

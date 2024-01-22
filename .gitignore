@@ -4,3 +4,4 @@ __pycache__/
 /posts_list.txt
 /cookies.pckl
 /cookies_timeout.date
+/mbasic_headers.json
