@@ -37,10 +37,11 @@ time.sleep(config.wait_time)
 
 try:
 	with open(config.mbasic_headers_path, 'r') as f:
-		_scraper.mbasic_headers = json.load(f)
+		_scraper.mbasic_headers = headers = json.load(f)
 	options = {
 		'base_url': 'https://mbasic.facebook.com',
-		'start_url': f'https://mbasic.facebook.com/{config.scrape_name}?v=timeline'
+		'start_url': f'https://mbasic.facebook.com/{config.scrape_name}?v=timeline',
+        'cookies': dict([s.split('=') for s in headers['cookie'].split('; ')])
 	}
 except FileNotFoundError:
 	options = {}
@@ -80,7 +81,7 @@ def embed_post(post):
 		"author": {
 			"name": post['username'],
 			"url": post['user_url'],
-			"icon_url": facebook_user['profile_picture']
+			"icon_url": facebook_user.get('profile_picture', None)
 		}
 	})
 
