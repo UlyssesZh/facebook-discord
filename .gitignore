@@ -5,3 +5,4 @@ __pycache__/
 /cookies.pckl
 /cookies_timeout.date
 /mbasic_headers.json
+.python-version
