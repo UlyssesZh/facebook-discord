@@ -41,12 +41,12 @@ try:
 	options = {
 		'base_url': 'https://mbasic.facebook.com',
 		'start_url': f'https://mbasic.facebook.com/{config.scrape_name}?v=timeline',
-        'cookies': dict([s.split('=') for s in headers['cookie'].split('; ')])
+		'cookies': dict([s.split('=') for s in headers['cookie'].split('; ')])
 	}
 except FileNotFoundError:
 	options = {}
 
-facebook_user = get_profile(config.scrape_name, **options)
+facebook_user = get_page_info(config.scrape_name, **options)
 try:
 	with open(config.posts_list_path, "r") as f:
 		recorded_posts = set(f.read().splitlines())
@@ -69,7 +69,7 @@ def embed_post(post):
 		title = lines[0][:255]
 	else:
 		title = ""
-	return discord.Embed.from_dict({
+	embed_data = {
 		"title": title,
 		"type": "rich",
 		"description": post['text'][:4095],
@@ -83,17 +83,17 @@ def embed_post(post):
 			"url": post['user_url'],
 			"icon_url": facebook_user.get('profile_picture', None)
 		}
-	})
+	}
+	return discord.Embed.from_dict(embed_data)
 
 intents = discord.Intents.default()
-intents.message_content = True
 client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
 	channel = client.get_channel(config.channel_id)
 	with open(config.posts_list_path, "a") as f:
 		for post in reversed(new_posts):
-			await channel.send(embed = embed_post(post))
+			await channel.send(embed=embed_post(post))
 			f.write(post['post_id'] + '\n')
 	await client.close()
 client.run(config.discord_token)
