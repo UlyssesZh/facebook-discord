@@ -4,36 +4,14 @@ from facebook_scraper import *
 from facebook_scraper import _scraper
 import discord
 
-import pickle
-import os
 import logging
 import time
 import json
 
 import config
 
-def set_cookies_timeout():
-	timeout = time.time() + config.cookies_timeout
-	logger.debug("Setting cookies timeout at %f", timeout)
-	with open(cookies_timeout_path, 'w') as f:
-		f.write(str(timeout))
-	if os.path.exists(config.cookies_file_path):
-		os.remove(config.cookies_file_path)
-def check_cookies_timeout():
-	if not os.path.exists(config.cookies_timeout_path):
-		set_cookies_timeout()
-	else:
-		with open(config.cookies_timeout_path) as f:
-			timeout = float(f.read())
-		if timeout < time.time():
-			logger.debug("Cookie expired. Needs refreshing.")
-			set_cookies_timeout()
-
 logger.debug("Sleep for %f seconds", config.wait_time)
 time.sleep(config.wait_time)
-
-#check_cookies_timeout()
-#use_persistent_session(config.facebook_email, config.facebook_password, config.cookies_file_path)
 
 try:
 	with open(config.mbasic_headers_path, 'r') as f:
