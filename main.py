@@ -7,7 +7,10 @@ import discord
 import logging
 import time
 import json
+import os
+import sys
 
+sys.path.append(os.getcwd())
 import config
 
 logger.debug("Sleep for %f seconds", config.wait_time)

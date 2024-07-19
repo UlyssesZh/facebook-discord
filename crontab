@@ -1,0 +1,1 @@
+*/30 * * * * cd /data && python3 /app/main.py
