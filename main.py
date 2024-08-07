@@ -45,15 +45,23 @@ if len(new_posts) == 0:
 	sys.exit(0)
 
 def embed_post(post):
-	lines = post['text'].splitlines()
+	if post['is_share']:
+		text = post['share_text']
+	else:
+		text = post['text']
+	lines = text.splitlines()
 	if len(lines) > 0:
 		title = lines[0][:255]
 	else:
 		title = ""
+
+	author_url = post['user_url']
+	if len(author_url) > 2048:
+		author_url = f'https://facebook.com/{config.scrape_name}'
 	embed_data = {
 		"title": title,
 		"type": "rich",
-		"description": post['text'][:4095],
+		"description": text[:4095],
 		"url": post['post_url'],
 		"timestamp": post['time'].isoformat(),
 		"image": {
@@ -61,7 +69,7 @@ def embed_post(post):
 		},
 		"author": {
 			"name": post['username'],
-			"url": post['user_url'],
+			"url": author_url,
 			"icon_url": facebook_user.get('profile_picture', None)
 		}
 	}
