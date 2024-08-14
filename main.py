@@ -45,7 +45,7 @@ if len(new_posts) == 0:
 	sys.exit(0)
 
 def embed_post(post):
-	if post['is_share']:
+	if post.get('is_share', False):
 		text = post['share_text']
 	else:
 		text = post['text']
