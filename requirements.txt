@@ -1,5 +1,5 @@
 aiohttp==3.9.0b0
 facebook-scraper @ git+https://github.com/moda20/facebook-scraper@7e16440
 browser-cookie3
-discord.py
 lxml==5.1.0 # https://stackoverflow.com/a/78615939
+requests

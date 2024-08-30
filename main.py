@@ -2,7 +2,7 @@
 
 from facebook_scraper import *
 from facebook_scraper import _scraper
-import discord
+import requests
 
 import logging
 import time
@@ -44,45 +44,7 @@ if len(new_posts) == 0:
 	logging.info("No new posts found")
 	sys.exit(0)
 
-def embed_post(post):
-	if post.get('is_share', False):
-		text = post['share_text']
-	else:
-		text = post['text']
-	lines = text.splitlines()
-	if len(lines) > 0:
-		title = lines[0][:255]
-	else:
-		title = ""
-
-	author_url = post['user_url']
-	if len(author_url) > 2048:
-		author_url = f'https://facebook.com/{config.scrape_name}'
-	embed_data = {
-		"title": title,
-		"type": "rich",
-		"description": text[:4095],
-		"url": post['post_url'],
-		"timestamp": post['time'].isoformat(),
-		"image": {
-			"url": post['image']
-		},
-		"author": {
-			"name": post['username'],
-			"url": author_url,
-			"icon_url": facebook_user.get('profile_picture', None)
-		}
-	}
-	return discord.Embed.from_dict(embed_data)
-
-intents = discord.Intents.default()
-client = discord.Client(intents=intents)
-@client.event
-async def on_ready():
-	channel = client.get_channel(config.channel_id)
-	with open(config.posts_list_path, "a") as f:
-		for post in reversed(new_posts):
-			await channel.send(embed=embed_post(post))
-			f.write(post['post_id'] + '\n')
-	await client.close()
-client.run(config.discord_token)
+with open(config.posts_list_path, "a") as f:
+	for post in reversed(new_posts):
+		requests.post(config.webhook_url, json={'content': post['post_url']})
+		f.write(post['post_id'] + '\n')

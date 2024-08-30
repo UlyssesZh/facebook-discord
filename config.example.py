@@ -7,5 +7,4 @@ mbasic_headers_path = 'mbasic_headers.json'
 wait_time = 300 * random.random()
 scrape_name = 'LyricaGame'
 posts_list_path = 'posts_list.txt'
-discord_token = 'DISCORD_TOKEN'
-channel_id = 11082004790208848
+webhook_url = 'https://discord.com/api/webhooks/11082004790208848/SOME_SECRET'
