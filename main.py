@@ -34,11 +34,15 @@ try:
 except FileNotFoundError:
 	recorded_posts = set()
 new_posts = []
-for post in get_posts(config.scrape_name, pages=3, **options):
-	if post['post_id'] in recorded_posts:
-		break
-	logging.info("New post found: " + post['post_url'])
-	new_posts.append(post)
+try:
+	for post in get_posts(config.scrape_name, pages=3, **options):
+		if post['post_id'] in recorded_posts:
+			break
+		logging.info("New post found: " + post['post_url'])
+		new_posts.append(post)
+except exceptions.LoginRequired as e:
+	logging.fatal("Login required. Please provide new mbasic headers.")
+	config.login_required(e)
 
 if len(new_posts) == 0:
 	logging.info("No new posts found")
